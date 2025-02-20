@@ -5,27 +5,34 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     printf("Bonjour je suis '%s'\n",argv[0]);
-    
+
+
+    int nb_prog = argc - 3;
+    int nb_enfant = 0;
     int seuil = atoi(argv[2]);
-    int n = seuil-1;
-    for (int i = 3; i < argc; ) {
-        if (n < seuil) {
-            if (!fork()) {
-                execl("./rebours","./rebours", argv[i], NULL);
-            }
-            i++;
-            n--;
-        } else {
-            wait(NULL);
-            n--;
+
+    for (int i = 0; i < nb_prog; i++)
+    {
+        int x = fork();
+        nb_enfant++;
+        if (!x)
+        {
+            execl("./rebours","./rebours", argv[i+3], NULL);
         }
-        if (n < 0) n = seuil;
+
+        if (nb_enfant >= seuil)
+        {
+            wait(NULL);
+            nb_enfant--;
+        }
     }
 
-    for (int i = 0; i < (argc+1)/2; i++) {
+    while (nb_enfant > 0) {
         wait(NULL);
+        nb_enfant--;
     }
-    return EXIT_SUCCESS;
+    return 0;
 }
