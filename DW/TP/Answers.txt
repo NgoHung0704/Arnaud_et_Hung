@@ -1,0 +1,35 @@
+1- the official names (country_name/offic_name) of the countries
+$x("//country_name/offic_name")
+
+2- the latitude of each country
+$x("//coordinates/@lat")
+
+3- the area of each country
+/countries/country/@area
+
+4- the official names of European countries (continent = Europe)
+$x("//country[infosContinent/continent = 'Europe']/country_name/offic_name")
+
+5- the common names of countries that do not have any native name
+$x("//country[not(country_name/native_name)]/country_name/common_name")
+
+6- the official names of the countries expressed in French, for those who have such names
+$x("//country_name/native_name[@lang='fra']/offic_name")
+
+7- elements with at least one attribute
+$x("//*[@*]")
+
+8- official names of the second native name of countries (for those who have)
+$x("//country_name/native_name[2]/offic_name") 
+
+9- the sum of the surfaces (area) of the countries of Africa
+$x("sum(//country[infosContinent/continent='Africa']/@area)") 
+
+10- countries whose common name is not contained in their official name
+$x("//country[not(contains(country_name/offic_name, country_name/common_name))]/country_name/common_name")
+
+11- France's last neighbor
+$x("//country[country_name/common_name='France']/borders/neighbour[last()]")
+
+12- the position of France in the XML document
+$x("count(//country[country_name/common_name='France']/preceding-sibling::country) + 1")
