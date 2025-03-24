@@ -1,0 +1,32 @@
+Arnaud MALLE, Anh Hung NGO - Gr 3IF2
+
+
+1. The velov stations
+    //velovstation
+
+2. The number of velov stations in the commune "Villeurbanne"
+    count(//velovstation[commune = 'Villeurbanne'])
+
+3. The number of velov stations that are not in Lyon
+    count(//velovstation[not(contains(commune, 'Lyon'))])
+
+4. The names of the velov stations whose status is "CLOSED"
+    //velovstation[status = 'CLOSED']/name/text()
+
+5. Find velov stations with more than 5 available bikes and which are "OPEN"
+    //velovstation[available_bikes > 5 and status = 'OPEN']/name/text()
+
+6. The average bike stand number
+    sum(//velovstation/bike_stands) div count(//velovstation)
+
+7. Find velovstation elements where the address_jcd is empty or missing
+    //velovstation[not(address_jcd) or address_jcd = '']
+
+8. Find velovstation elements where the bike_stands is greater than twice the average bike_stands across all stations
+    //velovstation[bike_stands > 2 * (sum(//velovstation/bike_stands) div count(//velovstation)]
+
+9. Get the names of velov stations with the highest number of available bikes
+    //velovstation[available_bikes = max(//velovstation/available_bikes)]/name/text()
+
+10. The unique commune names that don't contain "Lyon"
+    distinct-values(//velovstation[not(contains(commune, 'Lyon'))]/commune/text())
