@@ -1,0 +1,5 @@
+1) Pour initialiser les matières on a utiliser une méthode createMatiere qui à la base n'était pas prévu
+	dans notre MatiereDao parce que on voulait simplement récupérer une matière (crée en dur dans la BD)
+	à partir de son nom (String). On se retrouve donc une méthode createMatiere
+	pour persister alors qu'on ne s'en servira pas autrement que pour
+	initaliser. Est-ce que c'est bien ? Comment faire autrement ?
