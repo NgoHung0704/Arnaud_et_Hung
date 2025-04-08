@@ -12,8 +12,11 @@ import dao.InterventionDao;
 import dao.JpaUtil;
 import dao.MatiereDao;
 import java.util.List;
+import metier.modele.Autre;
 import metier.modele.Eleve;
+import metier.modele.Enseignant;
 import metier.modele.Etablissement;
+import metier.modele.Etudiant;
 import metier.modele.Intervenant;
 import metier.modele.Intervention;
 import metier.modele.Matiere;
@@ -54,11 +57,7 @@ public class Service {
                 
                 Outils outils = new Outils();
                 
-                //etablissement = outils.trouverEtablissement(codeEtablissement);
-                // PROBLEME API EDUCNET SUPPRIMER LA LIGNE ENTRE --- ET DECOMMENTER CELLE D'EN HAUT
-                // ----------
-                etablissement = new Etablissement("UAJDIA", "Jean Jores", "JSP", 43f, 65f);
-                // ----------
+                etablissement = outils.trouverEtablissement(codeEtablissement);
                 
                 if (etablissement != null){
                     // On ajoute l'élève à l'établissement
@@ -112,19 +111,23 @@ public class Service {
             Matiere matiere = matiereDao.obtenirMatiereFromNom(matiereName);
             intervention.setMatiere(matiere);
             
-            List<Intervenant> intervenants = intervenantDao.trouverIntervenantsDispoSupNiveau(eleve.getNiveauEleve());
+            List<Intervenant> intervenants = intervenantDao.trouverIntervenantsSupNiveau(eleve.getNiveauEleve());
             
-            if (intervenants.isEmpty()) throw new RuntimeException("Aucun intervenants disponible !");
+            if (intervenants.isEmpty()) throw new RuntimeException("Aucun intervenants disponible pour le niveau de l'élève !");
             
             Integer minIntervention = Integer.MAX_VALUE;
-            Intervenant bonIntervant = intervenants.get(0);
-            for (Intervenant i : intervenants){
-                Integer size = i.getHistoriqueInterventions().size();
-                if (size < minIntervention) {
-                    minIntervention = size;
-                    bonIntervant = i;
+            Intervenant bonIntervant = null;
+            for (Intervenant i : intervenants){ // Pour chaque intervenant
+                if (i.getEnCours() == null){ // Si l'intervenanr est disponible
+                    Integer size = i.getHistoriqueInterventions().size(); // On cherche celui qui a le moins d'interventions
+                    if (size < minIntervention) {
+                        minIntervention = size;
+                        bonIntervant = i;
+                    }
                 }
             }
+            
+            if(bonIntervant == null) throw new RuntimeException("Aucun intervenants disponible !");
             
             // On associe l'intervenant à l'intervention
             intervention.setIntervenant(bonIntervant);
@@ -147,21 +150,22 @@ public class Service {
         return demandeReussie;
     }
     
+    
     // Initialise des Intervenants dans la base de donnée.
     public void initialiserIntervenant() {
         try{
             JpaUtil.creerContextePersistance();
             JpaUtil.ouvrirTransaction();
             
-            Intervenant int1 = new Intervenant("ZOLA", "Emile", "06 46 69 28 09", 6, 0, "ezola", "germinal");
-            Intervenant int2 = new Intervenant("HUGO", "Victor", "09 78 45 71 12", 2, 0, "vhugo", "demainDesLaube");
-            Intervenant int3 = new Intervenant("MAUPASSANT", "Guy", "06 54 84 75 87", 6, 3, "gmaupassant", "leHorla");
-            Intervenant int4 = new Intervenant("CAMUS", "Albert", "07 54 21 54 65", 1, 0, "acamus", "laChute");
+            Etudiant etu1 = new Etudiant("ZOLA", "Emile", "06 46 69 28 09", 6, 0, "ezola", "germinal", "Lyon 1", "Physique");
+            Enseignant ens1 = new Enseignant("HUGO", "Victor", "09 78 45 71 12", 2, 0, "vhugo", "demainDesLaube", "Lycee");
+            Autre autre1 = new Autre("MAUPASSANT", "Guy", "06 54 84 75 87", 6, 3, "gmaupassant", "leHorla", "Ecrivain");
+            Enseignant ens2 = new Enseignant("CAMUS", "Albert", "07 54 21 54 65", 1, 0, "acamus", "laChute", "College");
             
-            intervenantDao.createIntervenant(int1);
-            intervenantDao.createIntervenant(int2);
-            intervenantDao.createIntervenant(int3);
-            intervenantDao.createIntervenant(int4);
+            intervenantDao.createIntervenant(etu1);
+            intervenantDao.createIntervenant(ens1);
+            intervenantDao.createIntervenant(autre1);
+            intervenantDao.createIntervenant(ens2);
             
             JpaUtil.validerTransaction();
         }catch (Exception e){

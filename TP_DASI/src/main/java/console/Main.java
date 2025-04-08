@@ -19,11 +19,11 @@ import metier.service.Service;
  */
 
 // Pour la suite :
-// TESTER LA DEMANDE DE SOUTIEN !!
-// On doit ensuite gérer les liens entre Intervenant Autre, Enseignant et Etudiant
-// - Gérer la géénration du lien 
+// TESTER LA DEMANDE DE SOUTIEN !! OK
+// On doit ensuite gérer les liens entre Intervenant Autre, Enseignant et Etudiant OK
+// - Gérer la génération du lien 
 // - Gérer la confirmation d'une séance de soutien avec duree bilan et evalEleve tout ca
-// 
+// - Service authentification
 
 
 

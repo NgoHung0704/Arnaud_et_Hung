@@ -20,8 +20,8 @@ public class IntervenantDao {
     }
     
     
-    public List<Intervenant> trouverIntervenantsDispoSupNiveau(Integer niveau) {
-        String s = "SELECT i FROM Intervenant i WHERE i.enCours IS NULL AND i.niveauMax <= :niveau AND i.niveauMin >= :niveau";
+    public List<Intervenant> trouverIntervenantsSupNiveau(Integer niveau) {
+        String s = "SELECT i FROM Intervenant i WHERE i.niveauMax <= :niveau AND i.niveauMin >= :niveau";
         TypedQuery query = JpaUtil.obtenirContextePersistance().createQuery(s, Intervenant.class);
         query.setParameter("niveau", niveau); 
         return query.getResultList();
