@@ -21,6 +21,7 @@ util\EducNetApi$EducNetApiIOException.class
 dao\IntervenantDao.class
 metier\modele\Eleve.class
 metier\modele\Eleve_.class
+util\Message.class
 metier\modele\Intervention_.class
 console\Main.class
 dao\EtablissementDao.class

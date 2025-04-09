@@ -35,6 +35,7 @@ public class Intervention {
     private Integer duree;
     private String bilanInterv;
     private Integer evalEleve;
+    private String heureDemande;
     
     @ManyToOne
     private Matiere matiere;
@@ -86,6 +87,11 @@ public class Intervention {
         return intervenant;
     }    
 
+    public String getHeureDemande() {
+        return heureDemande;
+    }
+    
+
     public void setMessageEleve(String messageEleve) {
         this.messageEleve = messageEleve;
     }
@@ -121,6 +127,12 @@ public class Intervention {
     public void setIntervenant(Intervenant intervenant) {
         this.intervenant = intervenant;
     }
+
+    public void setHeureDemande(String heureDemande) {
+        this.heureDemande = heureDemande;
+    }
+    
+    
     
     
     

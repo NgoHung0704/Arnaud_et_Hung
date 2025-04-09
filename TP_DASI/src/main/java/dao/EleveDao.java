@@ -5,6 +5,7 @@
  */
 package dao;
 
+import javax.persistence.TypedQuery;
 import metier.modele.Eleve;
 
 /**
@@ -21,4 +22,11 @@ public class EleveDao {
         JpaUtil.obtenirContextePersistance().merge(eleve);
     }
     
+    public Eleve findByMailAndMdp(String mail, String mdp){
+        String s = "SELECT e FROM Eleve e WHERE e.mail = :mail AND e.motDePasse = :mdp";
+        TypedQuery query = JpaUtil.obtenirContextePersistance().createQuery(s, Eleve.class);
+        query.setParameter("mail", mail);
+        query.setParameter("mdp", mdp);
+        return (Eleve) query.getSingleResult();
+    }
 }

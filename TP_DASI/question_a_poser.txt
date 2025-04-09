@@ -3,3 +3,11 @@
 	à partir de son nom (String). On se retrouve donc une méthode createMatiere
 	pour persister alors qu'on ne s'en servira pas autrement que pour
 	initaliser. Est-ce que c'est bien ? Comment faire autrement ?
+
+2) Dans le service inscrire Client est-ce qu'il faut passer en paramètre un objet Client
+	ou plutot l'ensemble des informations du Client car l'IHM ne pourra en théorie pas 
+	créer d'objet Client. Peut etre est-ce le role du servlet ? 
+
+3) Demander pour Message.notification qu'on veut appeller dans le main mais on a pas accès
+	au infos de l'intervenant. Est-ce qu'on peut appeller dans le  Service (je pense pas)*
+	faut renvoyer la demande finaliser peut etre dans notre service ?

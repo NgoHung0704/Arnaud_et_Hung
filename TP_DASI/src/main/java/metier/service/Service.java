@@ -11,6 +11,9 @@ import dao.IntervenantDao;
 import dao.InterventionDao;
 import dao.JpaUtil;
 import dao.MatiereDao;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import metier.modele.Autre;
 import metier.modele.Eleve;
@@ -129,6 +132,11 @@ public class Service {
             
             if(bonIntervant == null) throw new RuntimeException("Aucun intervenants disponible !");
             
+            // On récupère la date de la demande 
+            
+            
+            
+            
             // On associe l'intervenant à l'intervention
             intervention.setIntervenant(bonIntervant);
             bonIntervant.addInterventiontHistorique(intervention);
@@ -150,6 +158,21 @@ public class Service {
         return demandeReussie;
     }
     
+    
+    public Eleve authentifierEleve(String mail, String mdp) {
+    // Service qui prend en paramètre un mail et un mot de passe et permet de retourner l'élève si
+    // il est en base donnée. Renvoie null si l'élève n'est pas trouvé
+        Eleve eleve = null;
+        try{
+            JpaUtil.creerContextePersistance();
+            eleve = eleveDao.findByMailAndMdp(mail, mdp);
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            JpaUtil.fermerContextePersistance();
+        }
+        return eleve;
+    }
     
     // Initialise des Intervenants dans la base de donnée.
     public void initialiserIntervenant() {

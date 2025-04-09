@@ -11,7 +11,7 @@
     <class>metier.modele.Enseignant</class>
     <class>metier.modele.Autre</class>
     <properties>
-      <property name="javax.persistence.jdbc.url" value="jdbc:derby://localhost:1527/DB_TP"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:derby://localhost:1527/BD_TP"/>
       <property name="javax.persistence.jdbc.user" value="arnaud"/>
       <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.ClientDriver"/>
       <property name="javax.persistence.jdbc.password" value="arnaud"/>

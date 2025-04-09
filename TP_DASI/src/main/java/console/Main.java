@@ -12,6 +12,7 @@ import java.util.Date;
 import metier.modele.Eleve;
 import metier.modele.Intervention;
 import metier.service.Service;
+import util.Message;
 
 /**
  *
@@ -36,10 +37,15 @@ public class Main {
     public static void main(String[] args) {
         
         JpaUtil.creerFabriquePersistance();
-        //testerIncrireEleve();
         testerInitialiserIntervenant();
         testerInitialisationMatiere();
         testerDemandeSoutien();
+        
+        //testerIncrireEleve();
+        
+        //testerAuthentification();
+        
+        
         JpaUtil.fermerFabriquePersistance();
         
         
@@ -48,7 +54,7 @@ public class Main {
     public static void testerIncrireEleve() {
         Service service = new Service();
         
-        System.out.println("Inscription d'un éleve 1");
+        System.out.println("Test d'inscription d'un élève !");
         
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         Date date = new Date();
@@ -58,9 +64,9 @@ public class Main {
             e.printStackTrace();
         }
         
-        Eleve e1 = new Eleve("BARRAN", "William", date, 1, "william.barran@insa-lyon.fr", "monMotDePasse");
+        Eleve e1 = new Eleve("MALLE", "Arnaud", date, 1, "arnaud.malle@insa-lyon.fr", "monMotDePasse");
         Boolean resultat = service.inscireEleve(e1, "0601297J");
-        System.out.println(resultat + " -> Inscription de l'élève e1 : " + e1);
+        Message.envoyerMailConfirmation(e1.getMail(), e1.getPrenom(), resultat);
     }
     
     public static void testerDemandeSoutien() {
@@ -82,8 +88,21 @@ public class Main {
         Intervention intervention = new Intervention("J'ai besoin d'aide en mathematique svp", date);
         
         Boolean resultat = service.creerDemandeSoutien(e, intervention, "Mathematique");
-        System.out.println(resultat + " -> Demande de résultat crée pour l'éleve " + e );
+        // Message.notificationSoutien(prenomInterv, nomInterv, numTel, matiere, prenomDemandeur, Integer.SIZE);
     }
+    
+    public static void testerAuthentification() {
+        Service service = new Service();
+        testerIncrireEleve();
+        Eleve eleve = service.authentifierEleve("arnaud.malle@insa-lyon.fr", "monMotDePasse");
+        
+        if(eleve != null){
+            System.out.println("True -> Eleve authentifié : " + eleve);
+        }else{
+            System.out.println("False -> Eleve non authentifié");
+        }
+    }
+    
     
     public static void testerInitialiserIntervenant() {
         Service service = new Service();
