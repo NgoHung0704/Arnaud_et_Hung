@@ -28,13 +28,13 @@ public class Etablissement {
      private String codeEtablissement;
      private String nomEtablissement;
      private String ips;
-     private Float lat;
-     private Float lng;
+     private Double lat;
+     private Double lng;
      
      @OneToMany(mappedBy="etablissement")
      private List<Eleve> eleves = new ArrayList<>();
      
-    public Etablissement(String codeEtablissement, String nomEtablissement, String ips, Float lat, Float lng) {
+    public Etablissement(String codeEtablissement, String nomEtablissement, String ips, Double lat, Double lng) {
         this.codeEtablissement = codeEtablissement;
         this.nomEtablissement = nomEtablissement;
         this.ips = ips;
@@ -61,11 +61,11 @@ public class Etablissement {
         return ips;
     }
 
-    public Float getLat() {
+    public Double getLat() {
         return lat;
     }
 
-    public Float getLng() {
+    public Double getLng() {
         return lng;
     }
     /*
@@ -85,11 +85,11 @@ public class Etablissement {
         this.ips = ips;
     }
 
-    public void setLat(Float lat) {
+    public void setLat(Double lat) {
         this.lat = lat;
     }
 
-    public void setLng(Float lng) {
+    public void setLng(Double lng) {
         this.lng = lng;
     }
     

@@ -6,7 +6,7 @@ import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 import metier.modele.Intervention;
 
-@Generated(value="EclipseLink-2.5.2.v20140319-rNA", date="2025-04-09T20:15:47")
+@Generated(value="EclipseLink-2.5.2.v20140319-rNA", date="2025-04-11T11:20:28")
 @StaticMetamodel(Intervenant.class)
 public class Intervenant_ { 
 

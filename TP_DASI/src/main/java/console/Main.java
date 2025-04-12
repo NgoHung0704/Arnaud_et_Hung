@@ -19,12 +19,8 @@ import util.Message;
  * @author ahngo
  */
 
-// Pour la suite :
-// TESTER LA DEMANDE DE SOUTIEN !! OK
-// On doit ensuite gérer les liens entre Intervenant Autre, Enseignant et Etudiant OK
-// - Gérer la génération du lien 
-// - Gérer la confirmation d'une séance de soutien avec duree bilan et evalEleve tout ca
-// - Service authentification
+// Reste à faire :
+// Les statistiques 
 
 
 
@@ -37,11 +33,15 @@ public class Main {
     public static void main(String[] args) {
         
         JpaUtil.creerFabriquePersistance();
+        
+        
         testerInitialiserIntervenant();
         testerInitialisationMatiere();
-        testerDemandeSoutien();
+        //testerDemandeSoutien();
         
         //testerIncrireEleve();
+        
+       testerEvaluerProgressionEtBilan();
         
         //testerAuthentification();
         
@@ -65,7 +65,7 @@ public class Main {
         }
         
         Eleve e1 = new Eleve("MALLE", "Arnaud", date, 1, "arnaud.malle@insa-lyon.fr", "monMotDePasse");
-        Boolean resultat = service.inscireEleve(e1, "0601297J");
+        Boolean resultat = service.inscireEleve(e1, "0691664J");
         Message.envoyerMailConfirmation(e1.getMail(), e1.getPrenom(), resultat);
     }
     
@@ -89,6 +89,8 @@ public class Main {
         
         Boolean resultat = service.creerDemandeSoutien(e, intervention, "Mathematique");
         // Message.notificationSoutien(prenomInterv, nomInterv, numTel, matiere, prenomDemandeur, Integer.SIZE);
+        
+        
     }
     
     public static void testerAuthentification() {
@@ -101,6 +103,41 @@ public class Main {
         }else{
             System.out.println("False -> Eleve non authentifié");
         }
+    }
+    
+    public static void testerEvaluerProgressionEtBilan() {
+        Service service = new Service();
+        
+        System.out.println("Test de l'évaluation de la progression de l'élève !");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        Date date = new Date();
+        try {
+            date = sdf.parse("26/03/2004");
+        }catch (ParseException e){
+            e.printStackTrace();
+        }
+        Eleve e = new Eleve("MALLE", "Arnaud", date, 3, "arnaud.malle@insa-lyon.fr", "monMotDePass");
+        service.inscireEleve(e, "0601297J");
+        
+        //Création de l'intervention
+        Intervention intervention = new Intervention("J'ai besoin d'aide en mathematique svp", date);
+        
+        Boolean resultat = service.creerDemandeSoutien(e, intervention, "Mathematique");
+        // Message.notificationSoutien(prenomInterv, nomInterv, numTel, matiere, prenomDemandeur, Integer.SIZE);
+        
+        // Evaluation de l'élève
+        service.evaluerProgression(intervention, 0);
+        
+        // Bilan de l'intervenant
+        service.redigerBilan(intervention, "Bravo tu maitrise tout !");
+        
+        // Renseigner la durée de l'intervention (minutes)
+        service.renseignerDureeIntervention(intervention, 15);
+        
+        intervention = new Intervention("J'ai besoin d'aide en mathematique svp", date);
+        resultat = service.creerDemandeSoutien(e, intervention, "Mathematique");
+        System.out.println(resultat);
+        
     }
     
     

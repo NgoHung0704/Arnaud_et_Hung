@@ -5,12 +5,14 @@
  */
 package metier.service;
 
+import com.google.maps.model.LatLng;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import metier.modele.Etablissement;
 import util.EducNetApi;
+import util.GeoNetApi;
 
 /**
  *
@@ -28,7 +30,13 @@ public class Outils {
             resultat.setCodeEtablissement(reponse.get(0));
             resultat.setIps(reponse.get(8));
             resultat.setNomEtablissement(reponse.get(1));
-            // Ajouter pour avoir lattitude et longitude grace à l'API GeoNet
+            
+            // API GeoNet
+            
+            LatLng latLng = GeoNetApi.getLatLng(reponse.get(1) + "," + reponse.get(4));
+            resultat.setLat(latLng.lat);
+            resultat.setLng(latLng.lng);
+            
         } catch (IOException ex) {
             Logger.getLogger(Outils.class.getName()).log(Level.SEVERE, null, ex);
             resultat = null;

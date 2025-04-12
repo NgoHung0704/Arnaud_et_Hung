@@ -18,4 +18,8 @@ public class InterventionDao {
         JpaUtil.obtenirContextePersistance().persist(intervention);
     }
     
+    public void updateIntervention (Intervention intervention){
+        JpaUtil.obtenirContextePersistance().merge(intervention);
+    }
+    
 }

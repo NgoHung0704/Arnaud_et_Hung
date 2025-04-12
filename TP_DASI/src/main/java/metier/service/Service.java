@@ -132,8 +132,10 @@ public class Service {
             
             if(bonIntervant == null) throw new RuntimeException("Aucun intervenants disponible !");
             
-            // On récupère la date de la demande 
-            
+            // Génération du lien
+            String lienVisio = "https://servif.insa-lyon.fr/InteractIF/visio.html?eleve=" + eleve.getMail()
+                    + "&intervenant=" + bonIntervant.getLogin();
+            intervention.setLienVisio(lienVisio);
             
             
             
@@ -172,6 +174,73 @@ public class Service {
             JpaUtil.fermerContextePersistance();
         }
         return eleve;
+    }
+    
+    public Boolean evaluerProgression(Intervention intervention, Integer evalElev){
+        // Ce service permet de créer l'évalutation d'un élève représenté par un entier
+        // par exemple (0 : nul ; 1: Correct; 2: Super)*
+        Boolean reussite = false;
+        try{
+            JpaUtil.creerContextePersistance();
+            JpaUtil.ouvrirTransaction();
+            
+            intervention.setEvalEleve(evalElev);
+            interventionDao.updateIntervention(intervention);
+            
+            JpaUtil.validerTransaction();
+            reussite = true;
+        }catch (Exception e){
+            JpaUtil.annulerTransaction();
+            e.printStackTrace();
+        }finally{
+            JpaUtil.fermerContextePersistance();
+        }
+        return reussite;
+    }
+    
+    public Boolean redigerBilan(Intervention intervention, String bilan){
+        Boolean reussite = false;
+        try{
+            JpaUtil.creerContextePersistance();
+            JpaUtil.ouvrirTransaction();
+            
+            intervention.setBilanInterv(bilan);
+            interventionDao.updateIntervention(intervention);
+            
+            JpaUtil.validerTransaction();
+            reussite = true;
+        }catch (Exception e){
+            JpaUtil.annulerTransaction();
+            e.printStackTrace();
+        }finally{
+            JpaUtil.fermerContextePersistance();
+        }
+        return reussite;
+    }
+    
+    public Boolean renseignerDureeIntervention(Intervention intervention, Integer duree){
+        Boolean reussite = false;
+        try{
+            JpaUtil.creerContextePersistance();
+            JpaUtil.ouvrirTransaction();
+            
+            intervention.setDuree(duree);
+            interventionDao.updateIntervention(intervention);
+            
+            // On libère l'intervenant
+            Intervenant intervenant = intervention.getIntervenant();
+            intervenant.setEnCours(null);
+            intervenantDao.updateIntervenant(intervenant);
+            
+            JpaUtil.validerTransaction();
+            reussite = true;
+        }catch (Exception e){
+            JpaUtil.annulerTransaction();
+            e.printStackTrace();
+        }finally{
+            JpaUtil.fermerContextePersistance();
+        }
+        return reussite;
     }
     
     // Initialise des Intervenants dans la base de donnée.

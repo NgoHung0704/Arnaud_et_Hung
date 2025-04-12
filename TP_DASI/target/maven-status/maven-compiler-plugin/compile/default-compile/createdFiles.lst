@@ -15,6 +15,7 @@ dao\JpaUtil.class
 metier\modele\Etudiant_.class
 metier\modele\Etablissement.class
 metier\service\Service.class
+util\GeoNetApi.class
 dao\MatiereDao.class
 metier\service\Outils.class
 util\EducNetApi$EducNetApiIOException.class
