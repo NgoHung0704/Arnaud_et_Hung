@@ -19,6 +19,14 @@ public class IntervenantDao {
         JpaUtil.obtenirContextePersistance().persist(intervenant);
     }
     
+    public Intervenant findByLoginAndMdp(String login, String mdp){
+        String s = "SELECT i FROM Intervenant i WHERE i.login = :login AND i.motDePasse = :mdp";
+        TypedQuery query = JpaUtil.obtenirContextePersistance().createQuery(s, Intervenant.class);
+        query.setParameter("login", login);
+        query.setParameter("mdp", mdp);
+        return (Intervenant) query.getSingleResult();
+    }
+    
     
     public List<Intervenant> trouverIntervenantsSupNiveau(Integer niveau) {
         String s = "SELECT i FROM Intervenant i WHERE i.niveauMax <= :niveau AND i.niveauMin >= :niveau";

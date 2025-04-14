@@ -9,42 +9,56 @@ import dao.JpaUtil;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import metier.modele.Eleve;
+import metier.modele.Intervenant;
 import metier.modele.Intervention;
+import metier.modele.Matiere;
 import metier.service.Service;
-import util.Message;
-
-/**
- *
- * @author ahngo
- */
-
-// Reste à faire :
-// Les statistiques 
-
-
-
 
 public class Main {
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) { 
         
         JpaUtil.creerFabriquePersistance();
         
-        
+        // On créer en dur les intervenants et les matières
         testerInitialiserIntervenant();
         testerInitialisationMatiere();
-        //testerDemandeSoutien();
         
-        //testerIncrireEleve();
+        // L'élève s'inscrit 
+        testerIncrireEleve();
         
-       testerEvaluerProgressionEtBilan();
+        // Un élève s'authentifie 
+        Eleve eleve = testerAuthentificationEleve();
         
-        //testerAuthentification();
+        // L'élève authentifié demande un soutien
+        Intervention intervention = testerDemandeIntervention(eleve);
         
+        // L'intervenant s'authentifie pour accéder à la demande de soutien
+        Intervenant intervenant = testerAuthentificationIntervenant();
+        
+        // Récupérer l'intervention en cours (Intervention correspondant à celle attribuée à l'intervenant) :
+        Intervention interventionIntervenant = intervenant.getEnCours();
+
+        // L'intervention se finie l'élève peut renseigner l'évaluation
+        testerEvaluerProgression(intervention);
+        
+        // L'intervenant rédige aussi le bilan
+        testerRedigerBilan(interventionIntervenant);
+        
+        // On termine la visio
+        testerTerminerVisio(intervention);
+   
+        
+        // test des statistiques
+        testerRepartitionGeo();
+        testerStatsIps();
+        testerStatsMoyenne();
         
         JpaUtil.fermerFabriquePersistance();
         
@@ -63,39 +77,30 @@ public class Main {
         }catch (ParseException e){
             e.printStackTrace();
         }
-        
         Eleve e1 = new Eleve("MALLE", "Arnaud", date, 1, "arnaud.malle@insa-lyon.fr", "monMotDePasse");
-        Boolean resultat = service.inscireEleve(e1, "0691664J");
-        Message.envoyerMailConfirmation(e1.getMail(), e1.getPrenom(), resultat);
+        service.inscireEleve(e1, "0691664J");
     }
     
-    public static void testerDemandeSoutien() {
+    public static Intervention testerDemandeIntervention(Eleve eleve) {
         Service service = new Service();
+        
         
         System.out.println("Test de la demande de soutien !");
-        // Inscription de l'élève
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        Date date = new Date();
-        try {
-            date = sdf.parse("26/03/2004");
-        }catch (ParseException e){
-            e.printStackTrace();
+        
+        List<Matiere> listMatiere = service.listerMatiere();
+        Matiere matiere = service.obtenirMatiereDepuisId(listMatiere.get(0).getId());
+        Intervention intervention = service.creerDemandeIntervention(eleve, "J'ai besoin d'aide svp", matiere);
+        
+        if(intervention != null){
+            System.out.println("True -> Intervention crée avec succès : " + intervention);
+        }else{
+            System.out.println("False -> Echec de création de l'intervention");
         }
-        Eleve e = new Eleve("MALLE", "Arnaud", date, 3, "arnaud.malle@insa-lyon.fr", "monMotDePass");
-        service.inscireEleve(e, "0601297J");
-        
-        //Création de l'intervention
-        Intervention intervention = new Intervention("J'ai besoin d'aide en mathematique svp", date);
-        
-        Boolean resultat = service.creerDemandeSoutien(e, intervention, "Mathematique");
-        // Message.notificationSoutien(prenomInterv, nomInterv, numTel, matiere, prenomDemandeur, Integer.SIZE);
-        
-        
+        return intervention;
     }
     
-    public static void testerAuthentification() {
+    public static Eleve testerAuthentificationEleve() {
         Service service = new Service();
-        testerIncrireEleve();
         Eleve eleve = service.authentifierEleve("arnaud.malle@insa-lyon.fr", "monMotDePasse");
         
         if(eleve != null){
@@ -103,43 +108,43 @@ public class Main {
         }else{
             System.out.println("False -> Eleve non authentifié");
         }
+        return eleve;
     }
     
-    public static void testerEvaluerProgressionEtBilan() {
+    public static Intervenant testerAuthentificationIntervenant() {
+        Service service = new Service();
+        Intervenant intervenant = service.authentifierIntervenant("acamus", "laChute"); // Login & Mot de passe
+        
+        if(intervenant != null){
+            System.out.println("True -> Intervenant authentifié : " + intervenant);
+        }else{
+            System.out.println("False -> Intervenant non authentifié");
+        }
+        return intervenant;
+    }
+    
+    public static void testerEvaluerProgression(Intervention intervention) {
         Service service = new Service();
         
         System.out.println("Test de l'évaluation de la progression de l'élève !");
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        Date date = new Date();
-        try {
-            date = sdf.parse("26/03/2004");
-        }catch (ParseException e){
-            e.printStackTrace();
-        }
-        Eleve e = new Eleve("MALLE", "Arnaud", date, 3, "arnaud.malle@insa-lyon.fr", "monMotDePass");
-        service.inscireEleve(e, "0601297J");
-        
-        //Création de l'intervention
-        Intervention intervention = new Intervention("J'ai besoin d'aide en mathematique svp", date);
-        
-        Boolean resultat = service.creerDemandeSoutien(e, intervention, "Mathematique");
-        // Message.notificationSoutien(prenomInterv, nomInterv, numTel, matiere, prenomDemandeur, Integer.SIZE);
-        
         // Evaluation de l'élève
         service.evaluerProgression(intervention, 0);
-        
-        // Bilan de l'intervenant
-        service.redigerBilan(intervention, "Bravo tu maitrise tout !");
-        
-        // Renseigner la durée de l'intervention (minutes)
-        service.renseignerDureeIntervention(intervention, 15);
-        
-        intervention = new Intervention("J'ai besoin d'aide en mathematique svp", date);
-        resultat = service.creerDemandeSoutien(e, intervention, "Mathematique");
-        System.out.println(resultat);
-        
     }
     
+    public static void testerRedigerBilan(Intervention intervention) {
+        Service service = new Service();
+        
+        System.out.println("Test de la rédaction d'un bilan !");
+        // Bilan de l'intervenant
+        service.redigerBilan(intervention, "Bravo tu maitrise tout !");
+    }
+    
+    public static void testerTerminerVisio(Intervention intervention) {
+        Service service = new Service();
+        
+        System.out.println("Test de terminer la visio !");
+        service.terminerVisio(intervention);
+    }
     
     public static void testerInitialiserIntervenant() {
         Service service = new Service();
@@ -153,6 +158,30 @@ public class Main {
         
         System.out.println("Initialisation des matières");
         service.initialiserMatiere();
+    }
+    
+    public static void testerRepartitionGeo() {
+        Service service = new Service();
+        
+        System.out.println("Obtention des répartitions géographiques");
+        Map<String, List<Double>> repartition = service.obtenirRepartitionGeographique();
+        System.out.println("Répartition géographique : " + repartition);
+    }
+    
+    public static void testerStatsIps(){
+        Service service = new Service();
+        
+        System.out.println("Obtention des statistiques IPS");
+        Map<String, String> statsIps = service.obtenirStatsIps();
+        System.out.println("Statistiques IPS : " + statsIps);
+    }
+    
+    public static void testerStatsMoyenne() {
+        Service service = new Service();
+        
+        System.out.println("Obtention de la moyenne des temps des interventions");
+        Float moyenne = service.obtenirMoyenneTempsInterventions();
+        System.out.println("Moyenne de temps des intervention : " + moyenne + " minutes.");
     }
     
 }

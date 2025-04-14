@@ -5,6 +5,7 @@
  */
 package dao;
 
+import java.util.List;
 import javax.persistence.TypedQuery;
 import metier.modele.Matiere;
 
@@ -14,11 +15,17 @@ import metier.modele.Matiere;
  */
 public class MatiereDao {
     
-    public Matiere obtenirMatiereFromNom(String matiere){
-        String s = "SELECT m FROM Matiere m WHERE m.matiere = :matiere";
+    public Matiere obtenirMatiereById(Long id){
+        String s = "SELECT m FROM Matiere m WHERE m.id = :id";
         TypedQuery query = JpaUtil.obtenirContextePersistance().createQuery(s, Matiere.class);
-        query.setParameter("matiere", matiere); 
+        query.setParameter("id", id); 
         return (Matiere) query.getSingleResult();
+    }
+    
+    public List<Matiere> listerMatiere(){
+        String s = "SELECT m FROM Matiere m";
+        TypedQuery query = JpaUtil.obtenirContextePersistance().createQuery(s, Matiere.class); 
+        return query.getResultList();
     }
     
     public void createMatiere(Matiere matiere){

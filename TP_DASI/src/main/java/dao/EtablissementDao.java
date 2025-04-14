@@ -30,6 +30,12 @@ public class EtablissementDao {
         return resultat;
     }
     
+    public List<Etablissement> findAll() {
+        String s = "SELECT e FROM Etablissement e";
+        TypedQuery query = JpaUtil.obtenirContextePersistance().createQuery(s, Etablissement.class); 
+        return query.getResultList(); 
+    }
+    
     public void createEtablissement(Etablissement etablissement){
         JpaUtil.obtenirContextePersistance().persist(etablissement);
     }

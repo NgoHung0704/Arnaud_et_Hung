@@ -45,5 +45,12 @@ public class Matiere {
     public void setMatiere(String matiere) {
         this.matiere = matiere;
     }
+
+    @Override
+    public String toString() {
+        return "Matiere{" + "id=" + id + ", matiere=" + matiere + '}';
+    }
+    
+    
     
 }

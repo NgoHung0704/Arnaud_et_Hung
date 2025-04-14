@@ -68,11 +68,11 @@ public class Etablissement {
     public Double getLng() {
         return lng;
     }
-    /*
+    
     public List<Eleve> getEleves() {
         return eleves;
     }
-    */
+    
     public void setCodeEtablissement(String codeEtablissement) {
         this.codeEtablissement = codeEtablissement;
     }

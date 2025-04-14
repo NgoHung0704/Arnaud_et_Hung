@@ -32,7 +32,7 @@ public class Intervention {
     private Date date;
     
     private String lienVisio;
-    private Integer duree; // En minutes
+    private Long duree; // En minutes
     private String bilanInterv;
     private Integer evalEleve;
     
@@ -70,7 +70,7 @@ public class Intervention {
         return lienVisio;
     }
 
-    public Integer getDuree() {
+    public Long getDuree() {
         return duree;
     }
 
@@ -84,8 +84,15 @@ public class Intervention {
 
     public Intervenant getIntervenant() {
         return intervenant;
-    }    
-    
+    } 
+
+    public Matiere getMatiere() {
+        return matiere;
+    }
+
+    public Eleve getEleve() {
+        return eleve;
+    } 
 
     public void setMessageEleve(String messageEleve) {
         this.messageEleve = messageEleve;
@@ -99,7 +106,7 @@ public class Intervention {
         this.lienVisio = lienVisio;
     }
 
-    public void setDuree(Integer duree) {
+    public void setDuree(Long duree) {
         this.duree = duree;
     }
 
@@ -122,4 +129,11 @@ public class Intervention {
     public void setIntervenant(Intervenant intervenant) {
         this.intervenant = intervenant;
     }
+
+    @Override
+    public String toString() {
+        return "Intervention{" + "id=" + id + ", messageEleve=" + messageEleve + ", date=" + date + ", lienVisio=" + lienVisio + ", duree=" + duree + ", bilanInterv=" + bilanInterv + ", evalEleve=" + evalEleve + ", matiere=" + matiere + ", eleve=" + eleve + ", intervenant=" + intervenant + '}';
+    }
+    
+    
 }

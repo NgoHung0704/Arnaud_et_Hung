@@ -139,4 +139,11 @@ public class Intervenant {
     public void addInterventiontHistorique(Intervention intervention){
         this.historiqueInterventions.add(intervention);
     }
+
+    @Override
+    public String toString() {
+        return "Intervenant{" + "id=" + id + ", nom=" + nom + ", prenom=" + prenom + ", login=" + login + ", numTel=" + numTel + ", niveauMin=" + niveauMin + ", niveauMax=" + niveauMax + ", motDePasse=" + motDePasse + '}';
+    }
+    
+    
 }

@@ -8,7 +8,7 @@ import metier.modele.Eleve;
 import metier.modele.Intervenant;
 import metier.modele.Matiere;
 
-@Generated(value="EclipseLink-2.5.2.v20140319-rNA", date="2025-04-11T11:20:28")
+@Generated(value="EclipseLink-2.5.2.v20140319-rNA", date="2025-04-14T19:42:41")
 @StaticMetamodel(Intervention.class)
 public class Intervention_ { 
 
@@ -16,8 +16,7 @@ public class Intervention_ {
     public static volatile SingularAttribute<Intervention, Integer> evalEleve;
     public static volatile SingularAttribute<Intervention, String> lienVisio;
     public static volatile SingularAttribute<Intervention, String> messageEleve;
-    public static volatile SingularAttribute<Intervention, Integer> duree;
-    public static volatile SingularAttribute<Intervention, String> heureDemande;
+    public static volatile SingularAttribute<Intervention, Long> duree;
     public static volatile SingularAttribute<Intervention, Long> id;
     public static volatile SingularAttribute<Intervention, String> bilanInterv;
     public static volatile SingularAttribute<Intervention, Eleve> eleve;

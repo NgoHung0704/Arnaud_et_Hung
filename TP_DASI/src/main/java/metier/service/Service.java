@@ -13,8 +13,12 @@ import dao.JpaUtil;
 import dao.MatiereDao;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import metier.modele.Autre;
 import metier.modele.Eleve;
 import metier.modele.Enseignant;
@@ -23,11 +27,8 @@ import metier.modele.Etudiant;
 import metier.modele.Intervenant;
 import metier.modele.Intervention;
 import metier.modele.Matiere;
+import util.Message;
 
-/**
- *
- * @author ahngo
- */
 public class Service {
     
     private final EleveDao eleveDao;
@@ -91,27 +92,40 @@ public class Service {
         }finally {
             JpaUtil.fermerContextePersistance();
         }
-        
+        Message.envoyerMailConfirmation(eleve.getMail(), eleve.getPrenom(), inscriptionReussie);
         return inscriptionReussie;
     }
-   
-    // Ce service représente une demande d'intervention de la part d'un élève, ce service
-    // associe l'intervention à l'élève qui en fait la demande, à la matière demander et associe
-    // aussi l'intervention à un intervenant (on associe directement un intervenant si il existe, pas
-    // de liste d'attente et si aucun intervenant la demande est annulée)
-    public Boolean creerDemandeSoutien(Eleve eleve, Intervention intervention, String matiereName){
-        Boolean demandeReussie = false;
-        
+    
+    public List<Matiere> listerMatiere(){
+        List<Matiere> listMatiere = new ArrayList<>();
+        try {
+            JpaUtil.creerContextePersistance();
+            
+            listMatiere = matiereDao.listerMatiere();
+            
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            JpaUtil.fermerContextePersistance();
+        }
+        return listMatiere;
+    }
+    
+    public Intervention creerDemandeIntervention(Eleve eleve, String demande, Matiere matiere){
+        Intervention intervention = null;
         try {
             JpaUtil.creerContextePersistance();
             JpaUtil.ouvrirTransaction();
+            
+            // Creation de l'intervention
+            Date date = new Date(); 
+            intervention = new Intervention(demande, date);
             
             // Associer l'intervention avec l'élève
             eleve.addIntervention(intervention);
             intervention.setEleve(eleve);
             
             // Associer la matière à l'intervention
-            Matiere matiere = matiereDao.obtenirMatiereFromNom(matiereName);
             intervention.setMatiere(matiere);
             
             List<Intervenant> intervenants = intervenantDao.trouverIntervenantsSupNiveau(eleve.getNiveauEleve());
@@ -121,7 +135,7 @@ public class Service {
             Integer minIntervention = Integer.MAX_VALUE;
             Intervenant bonIntervant = null;
             for (Intervenant i : intervenants){ // Pour chaque intervenant
-                if (i.getEnCours() == null){ // Si l'intervenanr est disponible
+                if (i.getEnCours() == null){ // Si l'intervenant est disponible
                     Integer size = i.getHistoriqueInterventions().size(); // On cherche celui qui a le moins d'interventions
                     if (size < minIntervention) {
                         minIntervention = size;
@@ -150,20 +164,35 @@ public class Service {
             intervenantDao.updateIntervenant(bonIntervant);
             
             JpaUtil.validerTransaction();
-            demandeReussie = true;
+            Message.notificationSoutien(bonIntervant.getPrenom(), 
+                bonIntervant.getNom(), 
+                bonIntervant.getNumTel(), 
+                matiere.getMatiere(), 
+                eleve.getPrenom(), eleve.getNiveauEleve());
         } catch(Exception e) {
             JpaUtil.annulerTransaction();
             e.printStackTrace();
         } finally {
             JpaUtil.fermerContextePersistance();
         }
-        return demandeReussie;
+        return intervention;
     }
     
+    public Matiere obtenirMatiereDepuisId(Long id){
+        Matiere matiere = null;
+        try{
+            JpaUtil.creerContextePersistance();
+            
+            matiere = matiereDao.obtenirMatiereById(id);
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally{
+            JpaUtil.fermerContextePersistance();
+        }
+        return matiere;
+    }
     
     public Eleve authentifierEleve(String mail, String mdp) {
-    // Service qui prend en paramètre un mail et un mot de passe et permet de retourner l'élève si
-    // il est en base donnée. Renvoie null si l'élève n'est pas trouvé
         Eleve eleve = null;
         try{
             JpaUtil.creerContextePersistance();
@@ -177,8 +206,6 @@ public class Service {
     }
     
     public Boolean evaluerProgression(Intervention intervention, Integer evalElev){
-        // Ce service permet de créer l'évalutation d'un élève représenté par un entier
-        // par exemple (0 : nul ; 1: Correct; 2: Super)*
         Boolean reussite = false;
         try{
             JpaUtil.creerContextePersistance();
@@ -218,13 +245,18 @@ public class Service {
         return reussite;
     }
     
-    public Boolean renseignerDureeIntervention(Intervention intervention, Integer duree){
+    public Boolean terminerVisio(Intervention intervention){
         Boolean reussite = false;
         try{
             JpaUtil.creerContextePersistance();
             JpaUtil.ouvrirTransaction();
             
-            intervention.setDuree(duree);
+            // On calcul la durée
+            Date maintenant = new Date(); // Date actuelle
+            long diffEnMillisecondes = maintenant.getTime() - intervention.getDate().getTime();
+            long minutes = TimeUnit.MILLISECONDS.toMinutes(diffEnMillisecondes);
+            
+            intervention.setDuree(minutes);
             interventionDao.updateIntervention(intervention);
             
             // On libère l'intervenant
@@ -243,7 +275,77 @@ public class Service {
         return reussite;
     }
     
-    // Initialise des Intervenants dans la base de donnée.
+    public Intervenant authentifierIntervenant(String login, String mdp){
+        Intervenant intervenant = null;
+        try{
+            JpaUtil.creerContextePersistance();
+            intervenant = intervenantDao.findByLoginAndMdp(login, mdp);
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            JpaUtil.fermerContextePersistance();
+        }
+        return intervenant;
+    }
+    
+    public Map<String, List<Double>> obtenirRepartitionGeographique() {
+        Map<String, List<Double>> coordonneesMap = new HashMap<>();
+        try{
+            JpaUtil.creerContextePersistance();
+        
+            List<Etablissement> etablissements = etablissementDao.findAll();
+            for (Etablissement e : etablissements) {
+                List<Double> coords = new ArrayList<>();
+                coords.add(e.getLat());
+                coords.add(e.getLng());
+                coordonneesMap.put(e.getCodeEtablissement(), coords);
+            }
+            
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            JpaUtil.fermerContextePersistance();
+        }
+        return coordonneesMap;
+    }
+    
+    public Map<String, String> obtenirStatsIps() {
+        Map<String, String> statsIps = new HashMap<>();
+        try{
+            JpaUtil.creerContextePersistance();
+        
+            List<Etablissement> etablissements = etablissementDao.findAll();
+            for (Etablissement e : etablissements) {
+                String ips = e.getIps();
+                statsIps.put(e.getCodeEtablissement(), ips);
+            }
+            
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            JpaUtil.fermerContextePersistance();
+        }
+        return statsIps;
+    }
+    
+    public Float obtenirMoyenneTempsInterventions(){
+        Float moyenne = 0f;
+        try{
+            JpaUtil.creerContextePersistance();
+            Integer n = 0;
+            List<Intervention> interventions = interventionDao.findAll();
+            for (Intervention e : interventions) {
+                n++;
+                moyenne += e.getDuree() / n;
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            JpaUtil.fermerContextePersistance();
+        }
+        return moyenne;
+    }
+    
     public void initialiserIntervenant() {
         try{
             JpaUtil.creerContextePersistance();
@@ -291,4 +393,5 @@ public class Service {
             JpaUtil.fermerContextePersistance();
         }
     }
+    
 }

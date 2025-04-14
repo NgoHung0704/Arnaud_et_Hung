@@ -94,6 +94,14 @@ public class Eleve {
         return motDePasse;
     }
 
+    public List<Intervention> getInterventions() {
+        return interventions;
+    }
+    
+    public Etablissement getEtablissement() {
+        return etablissement;
+    }
+
     public void setNom(String nom) {
         this.nom = nom;
     }
